@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <!-- 略 -->
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <dir class="col-sm-12">
+          <h1>simple chat</h1>
+          <form action="">
+            <div class="form-group">
+              <input id="m" autocomplete="off" class="form-control" />
+            </div>
+            <button class="btn btn-primary">Send</button>
+          </form>
+          <hr>
+          <h4>active users</h4>
+          <div id="users"></div>
+          <hr>
+          <ul id="messages" class="list-group"></ul>
+        </dir>
+      </div>
+    </div>
+  </body>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+  <script>
+    $(function () {
+      let socket = io();
+      let name = window.prompt('enter your name: ', 'anonymous');
+      while(name == null) {
+        name = window.prompt('enter your name: ', 'anonymous');
+      }
+      socket.emit('user in', name);
+      $('form').submit(() => {
+        socket.emit('chat message', $('#m').val());
+        $('#m').val('');
+        return false;
+      });
+
+      socket.on('chat message', (msg, option) => {
+        $('#messages').prepend($('<li class="list-group-item' + option + '">').text(msg));
+      });
+      socket.on('history', (msg, option) => {
+        $('#messages').append($('<li class="list-group-item' + option + '">').text(msg));
+      });
+      socket.on('add user', (msg) => {
+        $('#users').append($('<button type="button" class="btn btn-light">').text(msg));
+      });
+      socket.on('delete user', (msg) => {
+        $('#users').find('button:contains("' + msg + '")').remove();
+      })
+    });
+  </script>
+</html>
+
